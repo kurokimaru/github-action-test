@@ -11,7 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout upstream repo
-        uses: actions/checkout@v4
-      - name: Echo Hello
-        run: echo "Hello. Nice to meet you."
+      - name: Get PR branch
+        uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
+
+      - name: Echo Comment
+        run: echo 'Hello Kenta'
