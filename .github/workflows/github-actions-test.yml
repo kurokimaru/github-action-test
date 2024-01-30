@@ -9,10 +9,26 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/hello')
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v3
+      - name: get upstream branch
+        id: upstreambranch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::set-output name=branchname::$(curl -H "Authorization: token ${GITHUB_TOKEN}" ${{ github.event.issue.pull_request.url }} | jq '.head.ref' | sed 's/\"//g')"
+
+      - name: Checkout upstream repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.upstreambranch.outputs.branchname }}
 
       - name: Add comment to PR
-        uses: mshick/add-pr-comment@v2
+        uses: actions/github-script@v6
+        if: always()
         with:
-          message: Hello Kenta
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Hello Kenta'
+            })
