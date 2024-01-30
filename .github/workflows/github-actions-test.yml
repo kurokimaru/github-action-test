@@ -11,4 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "Hello. Nice to meet you."
+      - name: Checkout upstream repo
+        uses: actions/checkout@v4
+      - name: Echo Hello
+        run: echo "Hello. Nice to meet you."
