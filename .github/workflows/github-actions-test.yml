@@ -11,5 +11,4 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: |
-      echo "Hello ${{ github.event.comment.body }}. Nice to meet you."
+      - run: echo "Hello. Nice to meet you."
