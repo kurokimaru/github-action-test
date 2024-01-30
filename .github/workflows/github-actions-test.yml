@@ -6,8 +6,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event_name == 'issue_comment' &&
-        startsWith(github.event.comment.body, '/hello') )
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/hello')
     runs-on: ubuntu-latest
 
     steps:
