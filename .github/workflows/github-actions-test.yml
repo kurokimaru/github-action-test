@@ -1,30 +1,18 @@
-name: Code Butler
+name: "Github Action Test Triggered Comment"
 
-permissions:
-  contents: read
-  pull-requests: write
-
-on:
+on: 
   issue_comment:
-    types: [created]
+    types: [created, edited]
 
 jobs:
-  review:
-    if: startsWith(github.event.comment.body, '/review')
+  deploy:
     runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/hello')
     steps:
-      - uses: ca-dp/code-butler@v1
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+
+      - name: Add comment to PR
+        uses: mshick/add-pr-comment@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          cmd: review
-  chat:
-    if: startsWith(github.event.comment.body, '/chat')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ca-dp/code-butler@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          cmd: chat
-          comment_body: ${{ github.event.comment.body }}
+          message: Hello Kenta
