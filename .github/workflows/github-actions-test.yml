@@ -1,0 +1,24 @@
+name: "Github Action Test Triggered Comment"
+
+on: 
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  deploy:
+    if: github.event_name == 'issue_comment' &&
+        startsWith(github.event.comment.body, '/hello') )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR branch
+        uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.comment-branch.outputs.head_ref }}
+
+      - name: Echo Comment
+        run: echo 'Hello Kenta'
