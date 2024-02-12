@@ -1,34 +1,32 @@
-name: "Github Action Test Triggered Comment"
+name: Code Butler
 
-on: 
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
 
 jobs:
-  deploy:
+  review:
+    if: startsWith(github.event.comment.body, '/review')
     runs-on: ubuntu-latest
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '/hello')
     steps:
-      - name: get upstream branch
-        id: upstreambranch
-        env:
+      - uses: ca-dp/code-butler@v1
+        with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "::set-output name=branchname::$(curl -H "Authorization: token ${GITHUB_TOKEN}" ${{ github.event.issue.pull_request.url }} | jq '.head.ref' | sed 's/\"//g')"
-
-      - name: Checkout upstream repo
-        uses: actions/checkout@v2
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          cmd: review
+          model: gpt-4-1106-preview
+  chat:
+    if: startsWith(github.event.comment.body, '/chat')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ca-dp/code-butler@v1
         with:
-          ref: ${{ steps.upstreambranch.outputs.branchname }}
-
-      - name: Add comment to PR
-        uses: actions/github-script@v6
-        if: always()
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Hello Kenta'
-            })
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          cmd: chat
+          model: gpt-4-1106-preview
+          comment_body: ${{ github.event.comment.body }}
